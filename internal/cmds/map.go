@@ -5,19 +5,27 @@ import (
 	"bootdev/pokedex/internal/pokeapi"
 )
 
-func commandMap(cfg *Config, client *pokeapi.Client) error {
-	url := ""
-	if cfg.Next != "" {
-		url = cfg.Next
-	}
-	return displayLocationAreas(url, cfg, client)	
+type MapCommand struct {
+	Cfg			*Config
+	Clt			*pokeapi.Client
 }
 
-func commandMapb(cfg *Config, client *pokeapi.Client) error {
-	if cfg.Previous == "" {
-		return fmt.Errorf("you're on the first page")
+func NewMapCommand(cfg *Config, clt *pokeapi.Client) CommandHandler {
+	return MapCommand{
+		Cfg:			cfg,
+		Clt:			clt,
 	}
-	return displayLocationAreas(cfg.Previous, cfg, client)
+}
+
+func (m MapCommand) Name() string { return "map" }
+func (m MapCommand) Description() string { return "Displays the names of 20 location areas in the Pokemon world" }
+
+func (m MapCommand) Run(args []string) error {
+	url := ""
+	if m.Cfg.Next != "" {
+		url = m.Cfg.Next
+	}
+	return displayLocationAreas(url, m.Cfg, m.Clt)	
 }
 
 func displayLocationAreas(url string, cfg *Config, client *pokeapi.Client) error {

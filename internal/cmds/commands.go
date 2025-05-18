@@ -9,38 +9,21 @@ type Config struct {
 	Previous	string
 }
 
-type CliCommand struct {
-	Name		string
-	Description	string
-	Callback	func(*Config, *pokeapi.Client) error
+type CommandHandler interface {
+	Run(args []string) error
+	Name() string
+	Description() string
 }
 
-func InitializeCmdRegistry() map[string]CliCommand {
-	return map[string]CliCommand{
-		"exit": {
-			Name:			"exit",
-			Description:	"Exit the Pokedex",
-			Callback:		commandExit,
-		},
-		"help": {
-			Name:			"help",
-			Description:	"Displays a help message",
-			Callback:		commandHelp,
-		},
-		"map": {
-			Name:			"map",
-			Description:	"Displays the names of 20 location areas in the Pokemon world",
-			Callback:		commandMap,
-		},
-		"mapb": {
-			Name:			"mapb",
-			Description:	"Displays the previous page of location areas",
-			Callback:		commandMapb,
-		},
-		"explore": {
-			Name:			"explore",
-			Description:	"Displays a list of all pokemons within a specified area",
-			Callback:		commandExplore,
-		},
+func InitializeCmdRegistry(cfg *Config, clt *pokeapi.Client) map[string]CommandHandler {
+	return map[string]CommandHandler{
+		"exit": NewExitCommand(),
+		"help": NewHelpCommand(cfg, clt),
+		"map":	NewMapCommand(cfg, clt),
+		"mapb": NewMapbCommand(cfg, clt),
+		"explore": NewExploreCommand(cfg, clt),
+		"catch": NewCatchCommand(clt),
+		"inspect": NewInspectCommand(clt),
+		"pokedex": NewPokedexCommand(clt),
 	}
 }

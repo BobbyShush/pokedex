@@ -11,9 +11,10 @@ import (
 
 func main() {
 	scanner := bufio.NewScanner(os.Stdin)
-	commandRegistry := cmds.InitializeCmdRegistry()
 	cfg := &cmds.Config{}
 	clt := pokeapi.NewClient()
+	commandRegistry := cmds.InitializeCmdRegistry(cfg, clt)
+
 	
 	for {
 		fmt.Print("Pokedex > ")
@@ -27,12 +28,17 @@ func main() {
 			continue
 		}
 
-		command, exists := commandRegistry[text[0]]
+		cmdName := text[0]
+		args := []string{}
+		if len(text) > 1 {
+			args = text[1:]
+		}
+		command, exists := commandRegistry[cmdName]
 		if !exists {
 			fmt.Println("Unknown command")
 			continue
 		}
-		if err := command.Callback(cfg, clt); err != nil {
+		if err := command.Run(args); err != nil {
 			fmt.Println(err)
 		}
 	}
